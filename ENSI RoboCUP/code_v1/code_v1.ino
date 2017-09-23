@@ -58,10 +58,11 @@ void loop()
 {
     read_sensor_values();
     calculate_pid();
-    test_distance();
-    test_light();
+    //test_distance();
+    //test_light();
     test_color();
     motor_control();
+    Serial.println("MOVE");
 }
 
 void read_sensor_values()
@@ -150,11 +151,12 @@ void test_distance(){
   // Calculating the distance
   distance= duration*0.034/2;
 
-  if (distance<=5){
+  if (distance<=10){
     analogWrite(4,0);
     analogWrite(5,0);
     analogWrite(6,0);
     analogWrite(7,0);
+    Serial.println("STOP_DISTANCE");
     do{
       // Clears the trigPin
       digitalWrite(trigPin, LOW);
@@ -170,20 +172,21 @@ void test_distance(){
     
       // Calculating the distance
       distance= duration*0.034/2;
-    }while(distance<=5);
+    }while(distance<=10);
     delay(500);
   }
 }
 
 void test_light(){
-    if (analogRead(A1)>=lc){
+    if (analogRead(A1)<=lc){
       analogWrite(4,0);
       analogWrite(5,0);
       analogWrite(6,0);
       analogWrite(7,0);
+      Serial.println("STOP_LIGHT");
       do{
         delayMicroseconds(10);
-      }while(analogRead(A1)>=lc);
+      }while(analogRead(A1)<=lc);
     }
 }
 
@@ -214,7 +217,13 @@ void test_color(){
       analogWrite(5,0);
       analogWrite(6,0);
       analogWrite(7,0);
+      Serial.println("STOP_COLOR");
       delay(10000);
   } 
+  analogWrite(4,initial_motor_speed-PID_value);
+  analogWrite(5,0);
+  analogWrite(6,0);
+  analogWrite(7,initial_motor_speed+PID_value);
+  delay(500);
 }
 
