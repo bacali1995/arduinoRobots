@@ -21,7 +21,7 @@ int green = 0;
 int frequency = 0;
 long duration;
 int distance;
-float Kp=0,Ki=0,Kd=0;
+float Kp=0.001,Ki=1,Kd=1.5;
 float error=0, P=0, I=0, D=0, PID_value=0;
 float previous_error=0, previous_I=0;
 uchar sensor[16];
@@ -61,7 +61,7 @@ void loop()
     calculate_pid();
     //test_distance();
     //test_light();
-    test_color();
+    //test_color();
     motor_control();
     Serial.println("MOVE");
 }
@@ -77,7 +77,21 @@ void read_sensor_values()
     else
       t = 0;
   }
-  
+  Serial.print("sensor[0]:");
+  Serial.println(sensor[0]);
+  Serial.print("sensor[2]:");
+  Serial.println(sensor[2]);
+  Serial.println();
+  Serial.print("sensor[6]:");
+  Serial.println(sensor[6]);
+  Serial.print("sensor[8]:");
+  Serial.println(sensor[8]);
+  Serial.println();
+  Serial.print("sensor[12]:");
+  Serial.println(sensor[12]);
+  Serial.print("sensor[14]:");
+  Serial.println(sensor[14]);
+  delay(2000);
   if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]>whiteConst))
   error=5;
   else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]>whiteConst))
@@ -112,7 +126,6 @@ void calculate_pid()
     D = error-previous_error;
     
     PID_value = (Kp*P) + (Ki*I) + (Kd*D);
-    
     previous_I=I;
     previous_error=error;
 }
@@ -225,6 +238,5 @@ void test_color(){
   analogWrite(5,0);
   analogWrite(6,0);
   analogWrite(7,initial_motor_speed+PID_value);
-  delay(500);
 }
 
