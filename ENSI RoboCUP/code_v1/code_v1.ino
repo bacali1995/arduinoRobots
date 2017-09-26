@@ -233,10 +233,12 @@ void test_color(){
       analogWrite(7,0);
       Serial.println("STOP_COLOR");
       delay(10000);
+      analogWrite(4,initial_motor_speed-PID_value);
+      analogWrite(5,0);
+      analogWrite(6,0);
+      analogWrite(7,initial_motor_speed+PID_value);
+      delay(500);
   } 
-  analogWrite(4,initial_motor_speed-PID_value);
-  analogWrite(5,0);
-  analogWrite(6,0);
-  analogWrite(7,initial_motor_speed+PID_value);
+  
 }
 
