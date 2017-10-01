@@ -20,17 +20,15 @@ int green = 0;
 int frequency = 0;
 long duration;
 int distance;
-float activeSensor = 0; // Count active sensors
-float totalSensor = 0; // Total sensor readings
-float avgSensor = 4.5; // Average sensor reading
-float Kp = 60;   // Max deviation = 8-4.5 = 3.5 ||  100/3.5 = 28
-float Ki = 0.0005;
-float Kd = 6;
-float error = 0;
-float previousError = 0;
-float totalError = 0;
+float Kp = 25;   
+float Ki = 0;
+float Kd = 0;
+float P = 0,I = 0,D = 0;
+int error = 0;
+int previousError = 0;
 int sensor[16];
 int sensorReading[8];
+int n = 0;
 float power = 0;
 
 int PWM_Right, PWM_Left;
@@ -62,7 +60,7 @@ void loop()
     //test_distance();
     //test_light();
     //test_color();
-   //delay(500);
+    //delay(500);
 }
 
 void readSensor()
@@ -77,25 +75,14 @@ void readSensor()
       t = 0;
   }
   sensor[2]+=8;
-  sensorReading[0] = sensor[0];
-  sensorReading[1] = sensor[2];
-  sensorReading[2] = sensor[4];
-  sensorReading[3] = sensor[6];
-  sensorReading[4] = sensor[8];
-  sensorReading[5] = sensor[10];
-  sensorReading[6] = sensor[12];
-  sensorReading[7] = sensor[14];
   for(int i=0; i<8; i++) 
     {
-      if(sensorReading[i] <= whiteConst) {
-        activeSensor+=1; 
-        totalSensor += (i+1);
-      }
+      sensorReading[i] = (sensor[2*i] <= whiteConst)? 1 : 0;
+      n += pow(2,i)*sensorReading[i];
+      Serial.print(sensorReading[i]);
     }
-      
-    avgSensor = totalSensor/activeSensor;
-    activeSensor = 0; totalSensor = 0;
-  /*Serial.print("[0]: ");
+
+   /*Serial.print("[0]: ");
   Serial.print(sensor[0]);
  Serial.print("  [2]: ");
   Serial.print(sensor[2]);
@@ -110,77 +97,88 @@ void readSensor()
   Serial.print("  [12]: ");
   Serial.print(sensor[12]);
   Serial.print("  [14]: ");
-  Serial.println(sensor[14]);  */
-  /*
-  if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]>whiteConst))
-  {error=5;
-//  Serial.println("plus extreme gauche");
-}
-  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]>whiteConst))
-  {error=4;
-//  Serial.println("extreme gauche");
-}
-  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]<=whiteConst))
-  {error=3;
-//  Serial.println("a gauche 2");
-}
-  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]>whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]<=whiteConst))
-  {error=2;
-//  Serial.println("a gauche 1");
-}
-  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]>whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
-  {error=1;
-//  Serial.println("un peu a gauche");
-}
-  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]>whiteConst)&&(sensor[8]>whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
-  {error=0;
-//  Serial.println("milieu");
-  }
-  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]>whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
-  {error=-1;
-//  Serial.println("un peu a droite");
-  }
-  else if((sensor[0]<=whiteConst)&&(sensor[2]>whiteConst)&&(sensor[6]>whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
- { error=-2;
-//  Serial.println("a droite 1");
-  }
-  else if((sensor[0]<=whiteConst)&&(sensor[2]>whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
-  {error=-3;
-//  Serial.println("a droite 2");
-}
-  else if((sensor[0]>whiteConst)&&(sensor[2]>whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
-  {error=-4;
-//  Serial.println("extreme droite");
-}
-  else if((sensor[0]>whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
- { error=-5;
-//  Serial.println("plus extreme droite");
-  }
-  else if((sensor[0]<=whiteConst)&&(sensor[1]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[4]<=whiteConst)&&(sensor[4]<=whiteConst))
-     {
-//      Serial.println("noire complet");
-     
-        if(error==-5) 
-          error=-6;
-  else error=6;}
-  */
+  Serial.println(sensor[14]);*/
+  
+  Serial.print("  ");
+  //Serial.print(n);
+  /*Serial.println(currentPos);*/
 }
 
 void PID_program()
 { 
     readSensor();
+    switch(n){
+      case 195:
+      case 0:
+        error = 0;
+        break;
+      /***************/
+      case 227:
+        error = 500;
+        break;
+      case 225:
+        error = 1000;
+        break;
+      case 241:
+        error = 1500;
+        break;  
+      case 240:
+        error = 2000;
+        break;
+      case 248:
+        error = 2500;
+        break;
+      case 252:
+        error = 3000;
+        break;  
+      case 254:
+        error = 3500;
+        break;
+      /***************/
+      case 199:
+        error = -500;
+        break;
+      case 135:
+        error = -1000;
+        break;
+      case 143:
+        error = -1500;
+        break;  
+      case 15:
+        error = -2000;
+        break;
+      case 31:
+        error = -2500;
+        break;
+      case 63:
+        error = -3000;
+        break;  
+      case 127:
+        error = -3500;
+        break;
+      /***************/
+      default: 
+        if (previousError>0) error = 4000;
+        else error = -4000;
+        break;
+    }
     
-    previousError = error; // save previous error for differential 
-    if (avgSensor-4.5>0.001) error = avgSensor - 4.5; // Count how much robot deviate from center
-    totalError += error; // Accumulate error for integral
+    n = 0;
     
-    power = (Kp*error) + (Kd*(error-previousError)) + (Ki*totalError);
-    /*Serial.print("power = ");
-    Serial.println(power);*/
+    previousError = error;
+
+    P = error * Kp * 0.001;
+    I += error;
+    I *= Ki;
+    D = (error-previousError)*Kd;
+    
+    power = P + I + D; 
+    //Serial.print("   ");
+    Serial.print(power);
+    Serial.print("   ");
     if( power>100 ) { power = 100.0; }
     if( power<-100.0 ) { power = -100.0; }
-    
-    if(power<0) // Turn left
+    if( power<0 ) // Turn left
     {
       PWM_Right = 100;
       PWM_Left = 100 - abs(int(power));
@@ -202,9 +200,9 @@ void PID_program()
 void lineFollow(void) {
    PID_program();
    analogWrite(4,0);
-    analogWrite(5,PWM_Right);
-    analogWrite(6,PWM_Left);
-    analogWrite(7,0);
+   analogWrite(5,PWM_Right);
+   analogWrite(6,PWM_Left-5 < 0 ? 0 : PWM_Left-5);
+   analogWrite(7,0);
 }
 
 /********************************************************/
