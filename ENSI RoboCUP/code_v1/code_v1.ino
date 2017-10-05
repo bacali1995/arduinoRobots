@@ -4,7 +4,7 @@
 #define I2 5
 #define I3 6
 #define I4 7
-#define whiteConst 95
+#define whiteConst 300
 #define lc 300
 #define trigPin 9
 #define echoPin 10
@@ -14,12 +14,14 @@
 #define S3 33
 #define sensorOut 34
 
+
 int red = 0;
 int blue = 0;
 int green = 0;
 int frequency = 0;
 long duration;
 int distance;
+<<<<<<< HEAD
 float Kp = 50;   
 float Ki = 0;
 float Kd = 0;
@@ -32,7 +34,21 @@ int n = 0;
 float power = 0;
 
 int PWM_Right, PWM_Left;
+=======
+float Kp=0.001,Ki=1,Kd=1.5;
+float error=0, P=0, I=0, D=0, PID_value=0;
+float previous_error=0, previous_I=0;
+uchar sensor[16];
+>>>>>>> parent of 80d994f... version 1.0.7
 uchar t;
+int initial_motor_speed=100;
+
+void read_sensor_values(void);
+void caulate_pid(void);
+void motor_control(void);
+void test_distance(void);
+void test_light(void);
+void test_color(void);
 
 void setup()
 {
@@ -56,24 +72,31 @@ void setup()
 
 void loop()
 {
-    lineFollow();
+    read_sensor_values();
+    calculate_pid();
     //test_distance();
     //test_light();
     //test_color();
+<<<<<<< HEAD
     //delay(500);
+=======
+    motor_control();
+    Serial.println("MOVE");
+>>>>>>> parent of 80d994f... version 1.0.7
 }
 
-void readSensor()
+void read_sensor_values()
 {
   Wire.requestFrom(9, 16);    // request 16 bytes from slave device #9
   while (Wire.available())   // slave may send less than requested
   {
-    sensor[t] = map(Wire.read(),0,255,0,1024);
+    sensor[t] = Wire.read(); // receive a byte as character
     if (t < 15)
       t++;
     else
       t = 0;
   }
+<<<<<<< HEAD
   sensor[2]+=8;
   for(int i=0; i<8; i++) 
     {
@@ -202,9 +225,80 @@ void lineFollow(void) {
    analogWrite(5,PWM_Right);
    analogWrite(6,PWM_Left-5 < 0 ? 0 : PWM_Left-5);
    analogWrite(7,0);
+=======
+  Serial.print("sensor[0]:");
+  Serial.println(sensor[0]);
+  Serial.print("sensor[2]:");
+  Serial.println(sensor[2]);
+  Serial.println();
+  Serial.print("sensor[6]:");
+  Serial.println(sensor[6]);
+  Serial.print("sensor[8]:");
+  Serial.println(sensor[8]);
+  Serial.println();
+  Serial.print("sensor[12]:");
+  Serial.println(sensor[12]);
+  Serial.print("sensor[14]:");
+  Serial.println(sensor[14]);
+  delay(2000);
+  if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]>whiteConst))
+  error=5;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]>whiteConst))
+  error=4;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]<=whiteConst))
+  error=3;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]>whiteConst)&&(sensor[12]>whiteConst)&&(sensor[14]<=whiteConst))
+  error=2;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]>whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=1;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]>whiteConst)&&(sensor[8]>whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=0;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]>whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=-1;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]>whiteConst)&&(sensor[6]>whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=-2;
+  else if((sensor[0]<=whiteConst)&&(sensor[2]>whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=-3;
+  else if((sensor[0]>whiteConst)&&(sensor[2]>whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=-4;
+  else if((sensor[0]>whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[6]<=whiteConst)&&(sensor[8]<=whiteConst)&&(sensor[12]<=whiteConst)&&(sensor[14]<=whiteConst))
+  error=-5;
+  else if((sensor[0]<=whiteConst)&&(sensor[1]<=whiteConst)&&(sensor[2]<=whiteConst)&&(sensor[4]<=whiteConst)&&(sensor[4]<=whiteConst))
+    if(error==-5) error=-6;
+    else error=6;
 }
 
-/********************************************************/
+void calculate_pid()
+{
+    P = error;
+    I = I + previous_I;
+    D = error-previous_error;
+    
+    PID_value = (Kp*P) + (Ki*I) + (Kd*D);
+    previous_I=I;
+    previous_error=error;
+}
+
+void motor_control()
+{
+    // Calculating the effective motor speed:
+    int left_motor_speed = initial_motor_speed-PID_value;
+    int right_motor_speed = initial_motor_speed+PID_value;
+    
+    // The motor speed should not exceed the max PWM value
+    constrain(left_motor_speed,0,255);
+    constrain(right_motor_speed,0,255);
+    
+    //following lines of code are to make the bot move forward
+    /*The pin numbers and high, low values might be different
+    depending on your connections */
+    analogWrite(4,initial_motor_speed-PID_value);
+    analogWrite(5,0);
+    analogWrite(6,0);
+    analogWrite(7,initial_motor_speed+PID_value);
+>>>>>>> parent of 80d994f... version 1.0.7
+}
+
 void test_distance(){
   // Clears the trigPin
   digitalWrite(trigPin, LOW);
@@ -289,10 +383,10 @@ void test_color(){
       analogWrite(7,0);
       Serial.println("STOP_COLOR");
       delay(10000);
-      analogWrite(4,PWM_Right);
+      analogWrite(4,initial_motor_speed-PID_value);
       analogWrite(5,0);
       analogWrite(6,0);
-      analogWrite(7,PWM_Left);
+      analogWrite(7,initial_motor_speed+PID_value);
       delay(500);
   } 
   
