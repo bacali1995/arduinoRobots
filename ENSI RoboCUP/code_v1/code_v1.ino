@@ -20,7 +20,7 @@ int green = 0;
 int frequency = 0;
 long duration;
 int distance;
-float Kp = 25;   
+float Kp = 50;   
 float Ki = 0;
 float Kd = 0;
 float P = 0,I = 0,D = 0;
@@ -108,7 +108,7 @@ void PID_program()
 { 
     readSensor();
     switch(n){
-      case 195:
+      case 199:
       case 0:
         error = 0;
         break;
@@ -135,9 +135,7 @@ void PID_program()
         error = 3500;
         break;
       /***************/
-      case 199:
-        error = -500;
-        break;
+     
       case 135:
         error = -1000;
         break;
@@ -158,8 +156,9 @@ void PID_program()
         break;
       /***************/
       default: 
-        if (previousError>0) error = 4000;
-        else error = -4000;
+        if (previousError == 3500) error = 4000;
+        else if (previousError == -3500) error = -4000;
+        else error = previousError;
         break;
     }
     
@@ -180,14 +179,14 @@ void PID_program()
     if( power<-100.0 ) { power = -100.0; }
     if( power<0 ) // Turn left
     {
-      PWM_Right = 100;
-      PWM_Left = 100 - abs(int(power));
+      PWM_Right = 100 + abs(int(power));
+      PWM_Left = 100 ;
     }
     
     else // Turn right
     {
-      PWM_Right = 100 - int(power);
-      PWM_Left = 100;
+      PWM_Right = 100 ;
+      PWM_Left = 100 + int(power);
     }
 
     Serial.print("PWM_Right = ");
