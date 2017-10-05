@@ -24,9 +24,9 @@ int sensor[16];
 int sensorReading[8];
 float activeSensor = 0; // Count active sensors
 float totalSensor = 0; // Total sensor readings
-float avgSensor = 4.5; // Average sensor reading
+float avgSensor = 4.8; // Average sensor reading
 
-float Kp = 72; // Max deviation = 8-4.5 = 3.5 ||  255/3.5 = 72
+float Kp = 79.6875; // Max deviation = 8-4.5 = 3.5 ||  255/3.5 = 72
 float Ki = 0.00015;
 float Kd = 5;
 
@@ -85,13 +85,14 @@ void readSensor() {
         totalSensor += sensorReading[i] * (i + 1);
     }
 
-    avgSensor = totalSensor / activeSensor;
+    if (activeSensor != 0) avgSensor = totalSensor / activeSensor;
+    else avgSensor = 4.8;
     activeSensor = 0;
     totalSensor = 0;
 
-    /*Serial.print("[0]: ");
+   /*Serial.print("[0]: ");
    Serial.print(sensor[0]);
-  Serial.print("  [2]: ");
+   Serial.print("  [2]: ");
    Serial.print(sensor[2]);
    Serial.print("  [4]: ");
    Serial.print(sensor[4]);
@@ -107,14 +108,14 @@ void readSensor() {
    Serial.println(sensor[14]);*/
 
     Serial.print("  ");
-    //Serial.print(n);
+//    Serial.print(n);
     /*Serial.println(currentPos);*/
 }
 
 void PID_program() {
     readSensor();
     previousError = error; // save previous error for differential 
-    error = avgSensor - 4.5; // Count how much robot deviate from center
+    error = avgSensor - 4.8; // Count how much robot deviate from center
     totalError += error; // Accumulate error for integral
 
     power = (Kp * error) + (Kd * (error - previousError)) + (Ki * totalError);
@@ -122,20 +123,20 @@ void PID_program() {
     //Serial.print("   ");
     Serial.print(power);
     Serial.print("   ");
-    if (power > 100) {
-        power = 100.0;
+    if (power > 200) {
+        power = 200.0;
     }
-    if (power<-100.0) {
-        power = -100.0;
+    if (power<-200.0) {
+        power = -200.0;
     }
     if (power < 0) // Turn left
     {
-        PWM_Right = 100 + abs(int(power));
-        PWM_Left = 100;
+        PWM_Right = 200 ;
+        PWM_Left = 200 - abs(int(power));
     } else // Turn right
     {
-        PWM_Right = 100;
-        PWM_Left = 100 + int(power);
+        PWM_Right = 200 - int(power);
+        PWM_Left = 200;
     }
 
     Serial.print("PWM_Right = ");
@@ -175,7 +176,6 @@ void test_distance() {
         analogWrite(5, 0);
         analogWrite(6, 0);
         analogWrite(7, 0);
-        Serial.println("STOP_DISTANCE");
         do {
             // Clears the trigPin
             digitalWrite(trigPin, LOW);
@@ -202,7 +202,6 @@ void test_light() {
         analogWrite(5, 0);
         analogWrite(6, 0);
         analogWrite(7, 0);
-        Serial.println("STOP_LIGHT");
         do {
             delayMicroseconds(10);
         } while (analogRead(A1) <= lc);
@@ -236,7 +235,6 @@ void test_color() {
         analogWrite(5, 0);
         analogWrite(6, 0);
         analogWrite(7, 0);
-        Serial.println("STOP_COLOR");
         delay(10000);
         analogWrite(4, PWM_Right);
         analogWrite(5, 0);
