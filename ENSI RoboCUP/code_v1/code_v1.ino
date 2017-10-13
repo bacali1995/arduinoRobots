@@ -4,7 +4,7 @@
 #define I2 5
 #define I3 6
 #define I4 7
-#define whiteConst 95
+#define whiteConst 6
 #define lc 300
 #define trigPin 9
 #define echoPin 10
@@ -22,18 +22,7 @@ long duration;
 int distance;
 int sensor[16];
 int sensorReading[8];
-float activeSensor = 0; // Count active sensors
-float totalSensor = 0; // Total sensor readings
-float avgSensor = 4.8; // Average sensor reading
-
-float Kp = 79.6875; // Max deviation = 8-4.5 = 3.5 ||  255/3.5 = 72
-float Ki = 0.00015;
-float Kd = 5;
-
-float error = 0;
-float previousError = 0;
-float totalError = 0;
-float power = 0;
+int activeSensor = 0;
 
 int PWM_Right, PWM_Left;
 uchar t;
@@ -60,101 +49,94 @@ void setup() {
 void loop() {
     lineFollow();
     //test_distance();
-    //test_light();
+    test_light();
     //test_color();
     //delay(500);
 }
 
+void lineFollow() {
+    readSensor();
+    if (sensorReading[3] == 0 && sensorReading[4] == 1) {
+        PWM_Right = 150;
+        PWM_Left = 120;
+    }
+
+    if (sensorReading[3] == 0 && sensorReading[4] == 0) {
+        PWM_Right = 150;
+        PWM_Left = 150;
+    }
+
+    if (sensorReading[3] == 1 && sensorReading[4] == 0) {
+        PWM_Right = 120;
+        PWM_Left = 150;
+    }
+
+    if (sensorReading[0] == 0 && sensorReading[1] == 0) {
+        PWM_Right = 200;
+        PWM_Left = 0;
+    }
+
+    if (sensorReading[6] == 0 && sensorReading[7] == 0) {  
+        PWM_Right = 0;
+        PWM_Left = 200;
+    }
+
+    if (sensorReading[0] == 1 && sensorReading[1] == 0 && sensorReading[3] == 0 && sensorReading[4] == 1) {  
+        PWM_Right = 150;
+        PWM_Left = 40;
+    }
+
+    if (sensorReading[3] == 1 && sensorReading[4] == 0 && sensorReading[6] == 0 && sensorReading[7] == 1) {
+        PWM_Right = 40;
+        PWM_Left = 150;
+    }
+
+    if (activeSensor == 0) {      
+        PWM_Right = 150;
+        PWM_Left = 150;
+    }
+    analogWrite(4, PWM_Right);
+    analogWrite(5, 0);
+    analogWrite(6, 0);
+    analogWrite(7, PWM_Left);
+}
+
 void readSensor() {
+    activeSensor = 0;
     Wire.requestFrom(9, 16); // request 16 bytes from slave device #9
     while (Wire.available()) // slave may send less than requested
     {
-        sensor[t] = map(Wire.read(), 0, 255, 0, 1024);
+        //sensor[t] = map(Wire.read(), 0, 255, 0, 1024);
+        sensor[t] = Wire.read();
         if (t < 15)
             t++;
         else
             t = 0;
     }
-    sensor[2] += 8;
     for (int i = 0; i < 8; i++) {
         sensorReading[i] = (sensor[2 * i] <= whiteConst) ? 1 : 0;
-        Serial.print(sensorReading[i]);
+       // Serial.print(sensorReading[i]);
         if (sensorReading[i] == 1) {
             activeSensor += 1;
         }
-        totalSensor += sensorReading[i] * (i + 1);
     }
-
-    if (activeSensor != 0) avgSensor = totalSensor / activeSensor;
-    else avgSensor = 4.8;
-    activeSensor = 0;
-    totalSensor = 0;
-
-   /*Serial.print("[0]: ");
-   Serial.print(sensor[0]);
-   Serial.print("  [2]: ");
-   Serial.print(sensor[2]);
-   Serial.print("  [4]: ");
-   Serial.print(sensor[4]);
-   Serial.print("  [6]: ");
-   Serial.print(sensor[6]);
-   Serial.print("  [8]: ");
-   Serial.print(sensor[8]);
-   Serial.print("  [10]: ");
-   Serial.print(sensor[10]);
-   Serial.print("  [12]: ");
-   Serial.print(sensor[12]);
-   Serial.print("  [14]: ");
-   Serial.println(sensor[14]);*/
-
-    Serial.print("  ");
-//    Serial.print(n);
-    /*Serial.println(currentPos);*/
-}
-
-void PID_program() {
-    readSensor();
-    previousError = error; // save previous error for differential 
-    error = avgSensor - 4.8; // Count how much robot deviate from center
-    totalError += error; // Accumulate error for integral
-
-    power = (Kp * error) + (Kd * (error - previousError)) + (Ki * totalError);
-
-    //Serial.print("   ");
-    Serial.print(power);
-    Serial.print("   ");
-    if (power > 200) {
-        power = 200.0;
-    }
-    if (power<-200.0) {
-        power = -200.0;
-    }
-    if (power < 0) // Turn left
-    {
-        PWM_Right = 200 ;
-        PWM_Left = 200 - abs(int(power));
-    } else // Turn right
-    {
-        PWM_Right = 200 - int(power);
-        PWM_Left = 200;
-    }
-
-    Serial.print("PWM_Right = ");
-    Serial.print(PWM_Right);
-    Serial.print("  PWM_Left = ");
-    Serial.println(PWM_Left);
-
-}
-
-void lineFollow(void) {
-    PID_program();
-    analogWrite(4, 0);
-    analogWrite(5, PWM_Right);
-    analogWrite(6, PWM_Left - 5 < 0 ? 0 : PWM_Left - 5);
-    analogWrite(7, 0);
+    //Serial.println();
+       /*Serial.print("[0]: ");
+       Serial.print(sensor[0]);
+       Serial.print("  [2]: ");
+       Serial.print(sensor[2]);
+       Serial.print("      [6]: ");
+       Serial.print(sensor[6]);
+       Serial.print("  [8]: ");
+       Serial.print(sensor[8]);
+       Serial.print("      [12]: ");
+       Serial.print(sensor[12]);
+       Serial.print("  [14]: ");
+       Serial.println(sensor[14]);*/
 }
 
 /********************************************************/
+
 void test_distance() {
     // Clears the trigPin
     digitalWrite(trigPin, LOW);
@@ -196,7 +178,10 @@ void test_distance() {
     }
 }
 
+/********************************************************/
+
 void test_light() {
+  Serial.println(analogRead(A1));
     if (analogRead(A1) <= lc) {
         analogWrite(4, 0);
         analogWrite(5, 0);
@@ -208,6 +193,8 @@ void test_light() {
     }
 }
 
+/********************************************************/
+
 void test_color() {
     // Setting red filtered photodiodes to be read
     digitalWrite(S2, LOW);
@@ -216,6 +203,9 @@ void test_color() {
     frequency = pulseIn(sensorOut, LOW);
     red = frequency;
 
+//  Serial.print("red = ");
+//  Serial.print(red);
+
     // Setting Green filtered photodiodes to be read
     digitalWrite(S2, HIGH);
     digitalWrite(S3, HIGH);
@@ -223,6 +213,8 @@ void test_color() {
     frequency = pulseIn(sensorOut, LOW);
     green = frequency;
 
+//  Serial.print("   green= ");
+//  Serial.print(green);
     // Setting Blue filtered photodiodes to be read
     digitalWrite(S2, LOW);
     digitalWrite(S3, HIGH);
@@ -230,7 +222,9 @@ void test_color() {
     frequency = pulseIn(sensorOut, LOW);
     blue = frequency;
 
-    if (red < 100 && green > 100 && blue > 100) {
+//  Serial.print("   blue = ");
+//  Serial.println(blue);
+    if (red < 120 && green > 120 && blue > 120) {
         analogWrite(4, 0);
         analogWrite(5, 0);
         analogWrite(6, 0);
@@ -240,7 +234,7 @@ void test_color() {
         analogWrite(5, 0);
         analogWrite(6, 0);
         analogWrite(7, PWM_Left);
-        delay(500);
+        
     }
 
 }
