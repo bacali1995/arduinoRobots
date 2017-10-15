@@ -4,7 +4,7 @@
 #define I2 5
 #define I3 6
 #define I4 9
-#define whiteConst 600
+#define whiteConst 200
 #define lc 300
 #define trigPin 12
 #define echoPin 13
@@ -51,12 +51,12 @@ void setup() {
 void loop() {    
     digitalWrite(8,LOW);
     lineFollow();
-    i++;
-    if (i == 500){
-      test_distance();
-      //Serial.println("ok");
-      i=0;
-    } 
+//    i++;
+//    if (i == 700){
+//      test_distance();
+//      //Serial.println("ok");
+//      i=0;
+//    } 
     //test_light();
     test_color();
     //delay(500);
@@ -65,37 +65,39 @@ void loop() {
 void lineFollow() {
     readSensor();
     if (sensorReading[1] == 0 && sensorReading[2] == 1) {
-        PWM_Right = 110;
-        PWM_Left = 90;
+        PWM_Right = 120;
+        PWM_Left = 100;
         digitalWrite(22,LOW);
     }
 
     if (sensorReading[1] == 0 && sensorReading[2] == 0) {
-        PWM_Right = 110;
-        PWM_Left = 110;
+        PWM_Right = 120;
+        PWM_Left = 120;
         //Serial.println("avant");
         digitalWrite(22,LOW);
     }
 
     if (sensorReading[1] == 1 && sensorReading[2] == 0) {
-        PWM_Right = 90;
-        PWM_Left = 110;
+        PWM_Right = 100;
+        PWM_Left = 120;
         digitalWrite(22,LOW);
     }
 
     if (sensorReading[0] == 0 && sensorReading[1] == 1) {
-        PWM_Right = 110;
+        PWM_Right = 140;
         PWM_Left = 0;
+        digitalWrite(22,LOW);
     }
 
     if (sensorReading[2] == 1 && sensorReading[3] == 0) {  
         PWM_Right = 0;
-        PWM_Left = 110;
+        PWM_Left = 140;
+        digitalWrite(22,LOW);
     }
 
-    if (activeSensor == 0) {      
-        PWM_Right = 110;
-        PWM_Left = 110;
+    if (sensorReading[0] == 0 && sensorReading[1] == 0 && sensorReading[2] == 0 && sensorReading[3] == 0) {      
+        PWM_Right = 120;
+        PWM_Left = 120;
         digitalWrite(22,LOW);
     }
 
@@ -129,8 +131,9 @@ Serial.print(analogRead(A1));
 Serial.print("   ");
 Serial.print(analogRead(A2));
 Serial.print("   ");
-Serial.println(analogRead(A3));
+Serial.print(analogRead(A3));
 
+Serial.print("   ");
     for (int i = 0; i < 4; i++) {
 //      Serial.print(sensorReading[i]);
         if (sensorReading[i] == 1) {
@@ -166,7 +169,7 @@ void test_distance() {
 //  Serial.print("distance = ");
 //  Serial.print(distance);
 //  Serial.println("   ");  
-    if (distance <= 20) {
+    if (distance <= 40) {
         analogWrite(3, 0);
         analogWrite(5, 0);
         analogWrite(6, 0);
@@ -183,7 +186,7 @@ void test_distance() {
 //            Serial.print("while =     ");
 //            Serial.print(distance);
 //            Serial.println("   ");  
-        } while (distance <= 20);
+        } while (distance <= 30);
         analogWrite(3, 0);
         analogWrite(5, 0);
         analogWrite(6, 0);
@@ -240,11 +243,11 @@ void test_color(){
   int x1 = color();
   int x2 = color();
   int x = (x1+x2)/2;
-//  Serial.print("color = ");
-//  Serial.print(x);
-  if (x > 45){
-//    Serial.print("stopped = ");
-//    Serial.println(x);
+  Serial.print("color = ");
+  Serial.print(x);
+  if (x > 55){
+    Serial.print("stopped = ");
+    Serial.println(x);
     analogWrite(3, 0);
         analogWrite(5, 0);
         analogWrite(6, 0);
@@ -256,7 +259,7 @@ void test_color(){
         analogWrite(6, 0);
         analogWrite(9, PWM_Left);
   }else{
-//    Serial.println();
+    Serial.println();
   }
 }
 
