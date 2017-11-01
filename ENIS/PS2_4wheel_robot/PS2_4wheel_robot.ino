@@ -182,16 +182,15 @@ void loop(){
         Serial.println(ps2x.Analog(PSS_RX)); 
     } 
     
-    direction_value = 2*(ps2x.Analog(PSS_LX)-128);
+    direction_value = 3*(ps2x.Analog(PSS_LX)-128)/2;
        
       speed_value = 2*(ps2x.Analog(PSS_RY)-128);
-      speed_left = (direction_value >= 0) ? speed_value - direction_value : speed_value + abs(direction_value);
+      speed_left = (direction_value >= 0) ? speed_value*90/100 - direction_value : speed_value*90/100 + abs(direction_value);
       speed_right = (direction_value < 0) ? speed_value - abs(direction_value) : speed_value + direction_value;
 
       /*****LEFT MOTORS****/
 
       // motor Front Left
-
       analogWrite(IN_22, (speed_left <= 0) ? min(abs(speed_left),255) : 0);
       analogWrite(IN_21, (speed_left > 0) ? min(speed_left,255) : 0);
       
