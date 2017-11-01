@@ -2,18 +2,10 @@
 
 PS2X ps2x; // create PS2 Controller Class
 
-#define ENB_m1 9        // Enable/speed motor Back Right
-#define ENB_m2 11       // Enable/speed motor Back Left
-
-#define IN_13  8       // L298N #1 in 3 motor Back Right
-#define IN_14  7      // L298N #1 in 4 motor Back Right
-#define IN_23  4     // L298N #2 in 3 motor Back Left
-#define IN_24  2    // L298N #2 in 4 motor Back Left
-
-#define IN_11  6        // L298N #1 in 1 motor Front Right
-#define IN_12  10        // L298N #1 in 2 motor Front Right
-#define IN_21  3       // L298N #2 in 1 motor Front Left
-#define IN_22  5        // L298N #2 in 2 motor Front Left
+#define IN_11  3        // L298N #1 in 1 motor Front Right
+#define IN_12  5        // L298N #1 in 2 motor Front Right
+#define IN_21  6       // L298N #2 in 1 motor Front Left
+#define IN_22  9        // L298N #2 in 2 motor Front Left
 
 //right now, the library does NOT support hot pluggable controllers, meaning 
 //you must always either restart your Arduino after you conect the controller, 
@@ -31,7 +23,7 @@ void setup(){
 
  //CHANGES for v1.6 HERE!!! *************PAY ATTENTION************
   
- error = ps2x.config_gamepad(26,30,32,28, true, true);   //setup pins and settings:  GamePad(clock, command, attention, data, Pressures?, Rumble?) check for error
+ error = ps2x.config_gamepad(8,4,7,2, true, true);   //setup pins and settings:  GamePad(clock, command, attention, data, Pressures?, Rumble?) check for error
  
  if(error == 0){
    Serial.println("Found Controller, configured successful");
@@ -196,22 +188,13 @@ void loop(){
       speed_left = (direction_value >= 0) ? speed_value - direction_value : speed_value + abs(direction_value);
       speed_right = (direction_value < 0) ? speed_value - abs(direction_value) : speed_value + direction_value;
 
-  Serial.print(speed_value);
-  Serial.print("    ");
-  Serial.print(speed_left);
-  Serial.print("    ");
-  Serial.println(speed_right);
       /*****LEFT MOTORS****/
 
       // motor Front Left
 
-      analogWrite(IN_22, (speed_left <= 0) ? min(abs(speed_left+20),255) : 0);
-      analogWrite(IN_21, (speed_left > 0) ? min(speed_left+20,255) : 0);
-            // motor Back Left
+      analogWrite(IN_22, (speed_left <= 0) ? min(abs(speed_left),255) : 0);
+      analogWrite(IN_21, (speed_left > 0) ? min(speed_left,255) : 0);
       
-      digitalWrite(IN_23, (speed_left <= 0) ? HIGH : LOW);
-      digitalWrite(IN_24, (speed_left > 0) ? HIGH : LOW);
-      analogWrite(ENB_m2, min(abs(speed_left+20),255));
 
       /*****RIGHT MOTORS****/
 
@@ -220,11 +203,6 @@ void loop(){
       analogWrite(IN_12, (speed_right > 0) ? min(speed_right,255) : 0);
       analogWrite(IN_11, (speed_right <= 0) ? min(abs(speed_right),255) : 0);
 
-      // motor Back Right
-      
-      digitalWrite(IN_13, (speed_right > 0) ? HIGH : LOW);
-      digitalWrite(IN_14, (speed_right <= 0) ? HIGH : LOW);
-      analogWrite(ENB_m1, min(abs(speed_right),255));
     
     
  }

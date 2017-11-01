@@ -2,7 +2,7 @@
 #define I2 5
 #define I3 6
 #define I4 9
-#define whiteConst 800
+#define whiteConst 850
 
 int sensorReading[6];
 
@@ -24,25 +24,30 @@ void lineFollow() {
     readSensor();
     if (sensorReading[0] == 1 && sensorReading[1] == 1 && sensorReading[2] == 1 && sensorReading[3] == 1 && sensorReading[4] == 1 && sensorReading[5] == 0){
           PWM_Right = 0;
-          PWM_Left = 160;
+          PWM_Left = 140;
     } else if (sensorReading[0] == 1 && sensorReading[1] == 1 && sensorReading[2] == 1 && sensorReading[3] == 1 && sensorReading[4] == 0 && sensorReading[5] == 0){
-          PWM_Right = 90;
-          PWM_Left = 160;
+          PWM_Right = 20;
+          PWM_Left = 140;
     } else if (sensorReading[0] == 1 && sensorReading[1] == 1 && sensorReading[2] == 1 && sensorReading[3] == 0 && sensorReading[4] == 0 && sensorReading[5] == 0){
-          PWM_Right = 110;
-          PWM_Left = 160;
-    } else if ((sensorReading[0] == 1 && sensorReading[1] == 0 && sensorReading[2] == 0 && sensorReading[3] == 0 && sensorReading[4] == 1 && sensorReading[5] == 1) || 
-                 (sensorReading[0] == 1 && sensorReading[1] == 1 && sensorReading[2] == 0 && sensorReading[3] == 0 && sensorReading[4] == 0 && sensorReading[5] == 1)){
-          PWM_Right = 170;
-          PWM_Left = 170;
-    }else if (sensorReading[0] == 0 && sensorReading[1] == 0 && sensorReading[2] == 0 && sensorReading[3] == 1 && sensorReading[4] == 1 && sensorReading[5] == 1){
-          PWM_Right = 160;
-          PWM_Left = 110;
+          PWM_Right = 70;
+          PWM_Left = 140;
+    } else if (sensorReading[0] == 1 && sensorReading[1] == 1 && sensorReading[2] == 0 && sensorReading[3] == 0 && sensorReading[4] == 0 && sensorReading[5] == 0){
+          PWM_Right = 100;
+          PWM_Left = 140;
+    } else if (sensorReading[0] == 1 && sensorReading[1] == 0 && sensorReading[2] == 0 && sensorReading[3] == 0 && sensorReading[4] == 0 && sensorReading[5] == 1){
+          PWM_Right = 140;
+          PWM_Left = 140;
+    }else if (sensorReading[0] == 0 && sensorReading[1] == 0 && sensorReading[2] == 0 && sensorReading[3] == 0 && sensorReading[4] == 1 && sensorReading[5] == 1){
+          PWM_Right = 140;
+          PWM_Left = 100;
+    } else if (sensorReading[0] == 0 && sensorReading[1] == 0 && sensorReading[2] == 0 && sensorReading[3] == 1 && sensorReading[4] == 1 && sensorReading[5] == 1){
+          PWM_Right = 140;
+          PWM_Left = 70;
     } else if (sensorReading[0] == 0 && sensorReading[1] == 0 && sensorReading[2] == 1 && sensorReading[3] == 1 && sensorReading[4] == 1 && sensorReading[5] == 1){
-          PWM_Right = 160;
-          PWM_Left = 90;
+          PWM_Right = 140;
+          PWM_Left = 20;
     } else if (sensorReading[0] == 0 && sensorReading[1] == 1 && sensorReading[2] == 1 && sensorReading[3] == 1 && sensorReading[4] == 1 && sensorReading[5] == 1){
-          PWM_Right = 160;
+          PWM_Right = 140;
           PWM_Left = 0;
     }
     
