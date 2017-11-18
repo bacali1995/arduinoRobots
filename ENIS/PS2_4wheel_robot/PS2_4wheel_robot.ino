@@ -10,6 +10,7 @@ PS2X ps2x; // create PS2 Controller Class
 #define E1 10
 #define E2 11
 
+#define speedMedium 100
 
 //right now, the library does NOT support hot pluggable controllers, meaning 
 //you must always either restart your Arduino after you conect the controller, 
@@ -169,29 +170,87 @@ void loop(){
     }   
          
     
-    if(ps2x.ButtonPressed(PSB_RED))             //will be TRUE if button was JUST pressed
-         Serial.println("Circle just pressed");
-         
-    if(ps2x.ButtonReleased(PSB_PINK))             //will be TRUE if button was JUST released
-         Serial.println("Square just released");     
-    
-    if(ps2x.NewButtonState(PSB_BLUE))            //will be TRUE if button was JUST pressed OR released
-         Serial.println("X just changed");    
-    
-    
-    if(ps2x.Button(PSB_L1) || ps2x.Button(PSB_R1)) // print stick values if either is TRUE
-    {
-        Serial.print("Stick Values:");
-        Serial.print(ps2x.Analog(PSS_LY)); //Left stick, Y axis. Other options: LX, RY, RX  
-        Serial.print(",");
-        Serial.print(ps2x.Analog(PSS_LX)); 
-        Serial.print(",");
-        Serial.print(ps2x.Analog(PSS_RY)); 
-        Serial.print(",");
-        Serial.println(ps2x.Analog(PSS_RX)); 
-    } 
-    
-    direction_value = 3*(ps2x.Analog(PSS_LX)-128)/2;
+    if(ps2x.ButtonPressed(PSB_PAD_RIGHT)){             //will be TRUE if button was JUST pressed
+         /*****LEFT MOTORS****/
+
+      // motor Front Left
+      analogWrite(IN_22, speedMedium);
+      analogWrite(IN_21, 0);
+      
+      analogWrite(E1, speedMedium);
+      digitalWrite(A1, HIGH);
+      digitalWrite(A0, LOW);
+
+      /*****RIGHT MOTORS****/
+
+      // motor Front Right
+      
+      analogWrite(IN_12, speedMedium);
+      analogWrite(IN_11, 0);
+
+      analogWrite(E2, speedMedium);
+      digitalWrite(A3, LOW);
+      digitalWrite(A2, HIGH);
+    } else  if(ps2x.ButtonReleased(PSB_PAD_LEFT)) { 
+      
+      // motor Front Left
+      analogWrite(IN_22, 0);
+      analogWrite(IN_21, speedMedium);
+      
+      analogWrite(E1, speedMedium);
+      digitalWrite(A1, LOW);
+      digitalWrite(A0, HIGH);
+
+      /*****RIGHT MOTORS****/
+
+      // motor Front Right
+      
+      analogWrite(IN_12, 0);
+      analogWrite(IN_11, speedMedium);
+
+      analogWrite(E2, speedMedium);
+      digitalWrite(A3, HIGH);
+      digitalWrite(A2, LOW);
+    } else if(ps2x.NewButtonState(PSB_PAD_DOWN))  {
+        // motor Front Left
+      analogWrite(IN_22, 0);
+      analogWrite(IN_21, speedMedium);
+      
+      analogWrite(E1, speedMedium);
+      digitalWrite(A1, LOW);
+      digitalWrite(A0, HIGH);
+
+      /*****RIGHT MOTORS****/
+
+      // motor Front Right
+      
+      analogWrite(IN_12, speedMedium);
+      analogWrite(IN_11, 0);
+
+      analogWrite(E2, speedMedium);
+      digitalWrite(A3, LOW);
+      digitalWrite(A2, HIGH);
+    } else if(ps2x.Button(PSB_PAD_UP)){
+        // motor Front Left
+      analogWrite(IN_22, speedMedium);
+      analogWrite(IN_21, 0);
+      
+      analogWrite(E1, speedMedium);
+      digitalWrite(A1, HIGH);
+      digitalWrite(A0, LOW);
+
+      /*****RIGHT MOTORS****/
+
+      // motor Front Right
+      
+      analogWrite(IN_12, 0);
+      analogWrite(IN_11, speedMedium);
+
+      analogWrite(E2, speedMedium);
+      digitalWrite(A3, HIGH);
+      digitalWrite(A2, LOW);  
+    } else {
+      direction_value = 3*(ps2x.Analog(PSS_LX)-128)/2;
        
       speed_value = 2*(ps2x.Analog(PSS_RY)-128);
       speed_left = (direction_value >= 0) ? speed_value - direction_value : speed_value + abs(direction_value);
@@ -217,6 +276,24 @@ void loop(){
       analogWrite(E2, min(abs(speed_right),255));
       digitalWrite(A3, (speed_right <= 0) ? HIGH : LOW);
       digitalWrite(A2, (speed_right > 0) ? HIGH : LOW);
+    
+    }
+   
+       
+    
+    
+    if(ps2x.Button(PSB_L1) || ps2x.Button(PSB_R1)) // print stick values if either is TRUE
+    {
+        Serial.print("Stick Values:");
+        Serial.print(ps2x.Analog(PSS_LY)); //Left stick, Y axis. Other options: LX, RY, RX  
+        Serial.print(",");
+        Serial.print(ps2x.Analog(PSS_LX)); 
+        Serial.print(",");
+        Serial.print(ps2x.Analog(PSS_RY)); 
+        Serial.print(",");
+        Serial.println(ps2x.Analog(PSS_RX)); 
+    } 
+    
     
  }
  
