@@ -7,6 +7,10 @@ PS2X ps2x; // create PS2 Controller Class
 #define IN_21  6       // L298N #2 in 1 motor Front Left
 #define IN_22  9        // L298N #2 in 2 motor Front Left
 
+#define E1 10
+#define E2 11
+
+
 //right now, the library does NOT support hot pluggable controllers, meaning 
 //you must always either restart your Arduino after you conect the controller, 
 //or call config_gamepad(pins) again after connecting the controller.
@@ -19,6 +23,11 @@ int speed_left;
 int speed_right;
 
 void setup(){
+  pinMode(A0,OUTPUT);
+  pinMode(A1,OUTPUT);
+  pinMode(A2,OUTPUT);
+  pinMode(A3,OUTPUT);
+  
  Serial.begin(9600);
 
  //CHANGES for v1.6 HERE!!! *************PAY ATTENTION************
@@ -194,6 +203,9 @@ void loop(){
       analogWrite(IN_22, (speed_left <= 0) ? min(abs(speed_left),255) : 0);
       analogWrite(IN_21, (speed_left > 0) ? min(speed_left,255) : 0);
       
+      analogWrite(E1, min(abs(speed_left),255));
+      digitalWrite(A1, (speed_left <= 0) ? HIGH : LOW);
+      digitalWrite(A0, (speed_left > 0) ? HIGH : LOW);
 
       /*****RIGHT MOTORS****/
 
@@ -202,7 +214,9 @@ void loop(){
       analogWrite(IN_12, (speed_right > 0) ? min(speed_right,255) : 0);
       analogWrite(IN_11, (speed_right <= 0) ? min(abs(speed_right),255) : 0);
 
-    
+      analogWrite(E2, min(abs(speed_right),255));
+      digitalWrite(A3, (speed_right <= 0) ? HIGH : LOW);
+      digitalWrite(A2, (speed_right > 0) ? HIGH : LOW);
     
  }
  
