@@ -170,7 +170,7 @@ void loop(){
     }   
          
     
-    if(ps2x.ButtonPressed(PSB_PAD_RIGHT)){             //will be TRUE if button was JUST pressed
+    if(ps2x.ButtonPressed(PSB_PAD_RIGHT) || ps2x.ButtonPressed(PSB_RED)){             //will be TRUE if button was JUST pressed
          /*****LEFT MOTORS****/
 
       // motor Front Left
@@ -191,7 +191,7 @@ void loop(){
       analogWrite(E2, speedMedium);
       digitalWrite(A3, LOW);
       digitalWrite(A2, HIGH);
-    } else  if(ps2x.ButtonReleased(PSB_PAD_LEFT)) { 
+    } else  if(ps2x.ButtonReleased(PSB_PAD_LEFT) || ps2x.ButtonPressed(PSB_PINK)) { 
       
       // motor Front Left
       analogWrite(IN_22, 0);
@@ -211,7 +211,7 @@ void loop(){
       analogWrite(E2, speedMedium);
       digitalWrite(A3, HIGH);
       digitalWrite(A2, LOW);
-    } else if(ps2x.NewButtonState(PSB_PAD_DOWN))  {
+    } else if(ps2x.NewButtonState(PSB_PAD_DOWN) || ps2x.ButtonPressed(PSB_BLUE))  {
         // motor Front Left
       analogWrite(IN_22, 0);
       analogWrite(IN_21, speedMedium);
@@ -230,7 +230,7 @@ void loop(){
       analogWrite(E2, speedMedium);
       digitalWrite(A3, LOW);
       digitalWrite(A2, HIGH);
-    } else if(ps2x.Button(PSB_PAD_UP)){
+    } else if(ps2x.Button(PSB_PAD_UP) || ps2x.ButtonPressed(PSB_GREEN)){
         // motor Front Left
       analogWrite(IN_22, speedMedium);
       analogWrite(IN_21, 0);
